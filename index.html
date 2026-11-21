@@ -1,0 +1,389 @@
+ 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WonderWorld | Learn, Play & Shine</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;color:white;background:linear-gradient(135deg,#10143f,#49266d,#783c86);min-height:100vh;overflow-x:hidden}
+#sky{position:fixed;inset:0;pointer-events:none;z-index:-1;overflow:hidden}
+.star{position:absolute;width:3px;height:3px;background:white;border-radius:50%;box-shadow:0 0 10px white;animation:twinkle 2s infinite alternate}
+.cloud{position:absolute;width:130px;height:40px;background:#ffffff20;border-radius:50px;animation:drift 28s linear infinite}
+.cloud:before,.cloud:after{content:"";position:absolute;background:inherit;border-radius:50%}
+.cloud:before{width:55px;height:55px;top:-25px;left:20px}
+.cloud:after{width:65px;height:65px;top:-30px;right:20px}
+@keyframes twinkle{to{opacity:.2;transform:scale(.6)}}
+@keyframes drift{from{transform:translateX(-180px)}to{transform:translateX(110vw)}}
+@keyframes float{50%{transform:translateY(-12px)}}
+header{position:sticky;top:0;background:#11113dcc;backdrop-filter:blur(12px);padding:15px 4%;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;border-bottom:1px solid #ffffff33;z-index:5}
+.logo{font-size:25px;font-weight:bold}
+.logo span{color:#ffe38a}
+.stats{display:flex;gap:8px;flex-wrap:wrap}
+.pill{padding:9px 13px;border-radius:30px;background:#ffffff20;border:1px solid #ffffff30}
+main{width:min(1050px,92%);margin:30px auto 90px}
+.panel{background:#191747cc;border:1px solid #ffffff35;border-radius:25px;padding:28px;box-shadow:0 15px 45px #0005;animation:appear .4s}
+@keyframes appear{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.hidden{display:none!important}
+.hero{text-align:center;padding:45px 20px}
+.mascot{font-size:75px;display:inline-block;animation:float 3s infinite}
+h1{font-size:clamp(35px,6vw,55px);margin:12px 0}
+h2{margin-top:0}
+p{color:#ddd5f6;line-height:1.6}
+button{font:inherit;cursor:pointer}
+.btn{border:0;border-radius:15px;padding:13px 22px;background:linear-gradient(100deg,#ff9ed2,#a58aff);color:#24143f;font-weight:bold}
+.btn:hover,.choice:hover,.level:hover{transform:translateY(-3px);filter:brightness(1.12)}
+.secondary{background:#ffffff20;color:white;border:1px solid #ffffff35}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:15px;margin-top:22px}
+.choice,.level{background:#ffffff13;border:1px solid #ffffff35;color:white;border-radius:18px;padding:19px;text-align:left;transition:.2s}
+.choice strong{display:block;font-size:19px;margin:9px 0}
+.emoji{font-size:32px}
+.note{font-size:13px;color:#d2c9ef}
+.topline{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.levels{display:grid;grid-template-columns:repeat(auto-fit,minmax(95px,1fr));gap:10px;margin-top:20px}
+.level{text-align:center;padding:14px 5px;font-weight:bold}
+.level.locked{opacity:.4;cursor:not-allowed}
+.level.done{border-color:#8df3d0;background:#246c5a77}
+.level small{display:block;font-size:11px;color:#d5cbed;margin-top:6px;font-weight:normal}
+.progress{height:10px;background:#ffffff22;border-radius:20px;margin:15px 0;overflow:hidden}
+.progress span{display:block;height:100%;width:0;background:linear-gradient(90deg,#8df3d0,#ffe38a);transition:.3s}
+.question{font-size:23px;font-weight:bold;margin:25px 0}
+.answers{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
+.answer{background:#ffffff15;border:1px solid #ffffff35;border-radius:14px;padding:16px;color:white;text-align:left}
+.answer.correct{background:#267e6277;border-color:#8df3d0}
+.answer.wrong{background:#9b3d5877;border-color:#ff9eae}
+.answer:disabled{cursor:default}
+.feedback{min-height:30px;margin:15px 0;color:#ffe38a;font-weight:bold}
+.footer{position:fixed;bottom:0;left:0;right:0;text-align:center;background:#100e35e8;padding:12px;border-top:1px solid #ffffff30;z-index:6}
+.toolbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+input{width:100px;accent-color:#ff9ed2}
+.daily{margin-top:25px;padding:17px;text-align:left;border:1px solid #ffe38a66;border-radius:18px;background:#ffe38a12}
+.modal{position:fixed;inset:0;background:#08071ddd;display:grid;place-items:center;padding:20px;z-index:10}
+.modalbox{width:min(480px,100%);background:linear-gradient(145deg,#30205f,#62347c);padding:28px;border-radius:25px;text-align:center;border:1px solid #ffffff40;animation:appear .3s}
+.big{font-size:65px;animation:float 2s infinite}
+.stars{display:flex;justify-content:center;gap:7px;margin:10px}
+.starbtn{font-size:35px;border:0;background:none;color:#aaa}
+.starbtn.selected{color:#ffe38a}
+.confetti{position:fixed;top:-20px;width:9px;height:14px;z-index:11;animation:fall 3s linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(700deg);opacity:0}}
+@media(max-width:600px){header{align-items:flex-start;flex-direction:column}.panel{padding:19px}}
+</style>
+</head>
+<body>
+<div id="sky"></div>
+
+<header>
+ <div class="logo">✨ Wonder<span>World</span></div>
+ <div class="stats">
+  <div class="pill">🔥 Streak: <b id="streak">0</b></div>
+  <div class="pill">⭐ Points: <b id="points">0</b></div>
+  <div class="pill">🏆 Levels: <b id="completed">0</b></div>
+ </div>
+ <div class="toolbar">
+  <button class="btn secondary" id="musicBtn">♫ Music: Off</button>
+  <label>Volume <input id="volume" type="range" min="0" max="100" value="78"></label>
+ </div>
+</header>
+
+<main>
+<section id="home" class="panel hero">
+ <div class="mascot">🧚‍♀️</div>
+ <h1>Welcome to <span style="color:#ffe38a">WonderWorld!</span></h1>
+ <p>A magical place to learn, play and shine. Your adventure begins here!</p>
+ <button class="btn" onclick="showAges()">Start Your Adventure ✨</button>
+ <div class="daily">
+  <h3>🌟 Daily Challenge</h3>
+  <p id="dailyStatus">A bonus challenge is waiting for you!</p>
+  <button class="btn" id="dailyBtn" onclick="startDaily()">Play Daily Challenge (+15 points)</button>
+ </div>
+</section>
+
+<section id="ages" class="panel hidden">
+ <div class="topline"><h2>Choose Your Age Group</h2><button class="btn secondary" onclick="home()">← Home</button></div>
+ <div class="grid">
+  <button class="choice" onclick="chooseAge('5–8')"><span class="emoji">🧸</span><strong>5–8 Years</strong><span class="note">Little Explorers</span></button>
+  <button class="choice" onclick="chooseAge('9–12')"><span class="emoji">🚀</span><strong>9–12 Years</strong><span class="note">Curious Adventurers</span></button>
+  <button class="choice" onclick="chooseAge('13–17')"><span class="emoji">🪄</span><strong>13–17 Years</strong><span class="note">Bright Thinkers</span></button>
+  <button class="choice" onclick="chooseAge('18+')"><span class="emoji">🌌</span><strong>18+ Years</strong><span class="note">Master Minds</span></button>
+ </div>
+</section>
+
+<section id="subjects" class="panel hidden">
+ <div class="topline"><h2 id="subjectTitle">Choose a Subject</h2><button class="btn secondary" onclick="showAges()">← Back</button></div>
+ <div class="grid">
+  <button class="choice" onclick="chooseSubject('Mathematics')"><span class="emoji">➗</span><strong>Mathematics</strong><span class="note">Numbers and puzzles</span></button>
+  <button class="choice" onclick="chooseSubject('Science')"><span class="emoji">🔬</span><strong>Science</strong><span class="note">Discover the world</span></button>
+  <button class="choice" onclick="chooseSubject('Logical Reasoning')"><span class="emoji">🧩</span><strong>Logical Reasoning</strong><span class="note">Think and solve</span></button>
+ </div>
+</section>
+
+<section id="levels" class="panel hidden">
+ <div class="topline"><div><h2 id="levelTitle">Your Levels</h2><p>Complete a level to unlock the next.</p></div><button class="btn secondary" onclick="showSubjects()">← Subjects</button></div>
+ <div class="progress"><span id="subjectProgress"></span></div>
+ <div class="levels" id="levelGrid"></div>
+</section>
+
+<section id="game" class="panel hidden">
+ <div class="topline"><div><h2 id="gameTitle">Level 1</h2><p id="gameMeta"></p></div><button class="btn secondary" onclick="showLevels()">Exit Level</button></div>
+ <div class="progress"><span id="questionProgress"></span></div>
+ <div id="questionText" class="question"></div>
+ <div id="answers" class="answers"></div>
+ <div id="feedback" class="feedback"></div>
+ <button id="nextBtn" class="btn hidden" onclick="nextQuestion()">Next →</button>
+</section>
+</main>
+
+<div id="celebration" class="modal hidden">
+ <div class="modalbox">
+  <div class="big" id="celebrationIcon">🌟</div>
+  <h2 id="celebrationTitle">Wonderful work!</h2>
+  <p id="celebrationText"></p>
+  <div id="ratingArea">
+   <h3>How was this level?</h3>
+   <p class="note">Rate your experience from 1 to 5 stars.</p>
+   <div class="stars">
+    <button class="starbtn" onclick="rate(1)">★</button>
+    <button class="starbtn" onclick="rate(2)">★</button>
+    <button class="starbtn" onclick="rate(3)">★</button>
+    <button class="starbtn" onclick="rate(4)">★</button>
+    <button class="starbtn" onclick="rate(5)">★</button>
+   </div>
+   <p id="ratingThanks" class="note">You can also skip the rating.</p>
+  </div>
+  <button class="btn" onclick="closeCelebration()">Continue Adventure ✨</button>
+  <button class="btn secondary" style="margin-top:8px" onclick="skipRating()">Skip rating</button>
+ </div>
+</div>
+
+<div class="footer">Created by Anusha Khandelwal</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const storeKey='wonderworld_progress_v5';
+let data=JSON.parse(localStorage.getItem(storeKey)||'null')||{points:0,completed:{},lastDate:'',streak:0,ratings:[],dailyDone:''};
+let age='',subject='',level=1,qIndex=0,score=0,questions=[],dailyMode=false,currentRating=0;
+let audioCtx=null,masterGain=null,musicTimer=null,musicOn=false;
+
+function save(){localStorage.setItem(storeKey,JSON.stringify(data));updateStats()}
+function completedCount(){return Object.values(data.completed).reduce((n,a)=>n+a.length,0)}
+function updateStats(){
+ $('points').textContent=data.points;
+ $('streak').textContent=data.streak;
+ $('completed').textContent=completedCount();
+ const today=new Date().toLocaleDateString('en-CA');
+ let done=data.dailyDone===today;
+ $('dailyStatus').textContent=done?'Today’s challenge is complete. Come back tomorrow!':'Complete a quick challenge to earn bonus points.';
+ $('dailyBtn').disabled=done;
+ $('dailyBtn').textContent=done?'Challenge Completed ✓':'Play Daily Challenge (+15 points)';
+}
+function updateDaily(){
+ let today=new Date().toLocaleDateString('en-CA');
+ if(data.lastDate!==today){
+  let y=new Date();y.setDate(y.getDate()-1);
+  data.streak=data.lastDate===y.toLocaleDateString('en-CA')?data.streak+1:1;
+  data.lastDate=today;save();
+ }
+}
+function only(id){['home','ages','subjects','levels','game'].forEach(x=>$(x).classList.toggle('hidden',x!==id))}
+function home(){only('home')}
+function showAges(){only('ages')}
+function chooseAge(a){age=a;showSubjects()}
+function showSubjects(){$('subjectTitle').textContent=age+' • Choose a Subject';only('subjects')}
+function chooseSubject(s){subject=s;showLevels()}
+function key(){return age+'|'+subject}
+function showLevels(){only('levels');$('levelTitle').textContent=subject+' • '+age;renderLevels()}
+function renderLevels(){
+ let done=data.completed[key()]||[],highest=0;
+ while(done.includes(highest+1))highest++;
+ $('subjectProgress').style.width=(highest/20*100)+'%';
+ $('levelGrid').innerHTML='';
+ for(let i=1;i<=20;i++){
+  let unlocked=i===1||done.includes(i-1),isDone=done.includes(i);
+  let b=document.createElement('button');
+  b.className='level'+(!unlocked?' locked':'')+(isDone?' done':'');
+  b.innerHTML=(isDone?'⭐':unlocked?'🔓':'🔒')+'<br>Level '+i+'<small>'+(isDone?'Completed':unlocked?'Ready to play':'Locked')+'</small>';
+  if(unlocked)b.onclick=()=>startLevel(i);
+  $('levelGrid').appendChild(b);
+ }
+}
+function buildQuestions(){
+ let a=age==='5–8'?0:age==='9–12'?1:age==='13–17'?2:3,n=level;
+ if(subject==='Mathematics'){
+  if(a===0)return [
+   {q:'What is 4 + 3?',o:['6','7','8','9'],c:1},
+   {q:'Which number comes after 9?',o:['8','10','11','12'],c:1},
+   {q:'What is 5 + 5?',o:['8','9','10','11'],c:2}
+  ];
+  if(a===1)return [
+   {q:'What is 12 × 8?',o:['86','96','106','108'],c:1},
+   {q:'What is 144 ÷ 12?',o:['10','11','12','14'],c:2},
+   {q:'What is 25% of 200?',o:['25','40','50','75'],c:2}
+  ];
+  if(a===2)return [
+   {q:'Solve: 3x + 7 = 28.',o:['5','6','7','8'],c:2},
+   {q:'A price of ₹500 is reduced by 20%. New price?',o:['₹350','₹400','₹420','₹450'],c:1},
+   {q:'Find the next term: 4, 9, 14, 19, ...',o:['22','23','24','25'],c:2}
+  ];
+  return [
+   {q:'A fair coin is tossed 3 times. Probability of exactly 2 heads?',o:['1/8','3/8','1/2','5/8'],c:1},
+   {q:'Solve: (2x − 3)/5 = 7.',o:['16','17','18.5','20'],c:2},
+   {q:'An investment rises 20% then falls 20%. Net change?',o:['4% decrease','No change','4% increase','2% decrease'],c:0}
+  ];
+ }
+ if(subject==='Science'){
+  if(a===0)return [
+   {q:'Which part of a plant absorbs water?',o:['Flower','Roots','Leaves','Fruit'],c:1},
+   {q:'Which star gives Earth light?',o:['Polaris','Sun','Sirius','Vega'],c:1},
+   {q:'Which animal has stripes?',o:['Zebra','Elephant','Rabbit','Deer'],c:0}
+  ];
+  if(a===1)return [
+   {q:'Which gas do plants absorb for photosynthesis?',o:['Oxygen','Carbon dioxide','Hydrogen','Helium'],c:1},
+   {q:'What force pulls objects toward Earth?',o:['Friction','Gravity','Magnetism','Sound'],c:1},
+   {q:'Which organ pumps blood?',o:['Lungs','Brain','Heart','Kidney'],c:2}
+  ];
+  if(a===2)return [
+   {q:'Main site of aerobic respiration?',o:['Ribosome','Mitochondrion','Golgi body','Vacuole'],c:1},
+   {q:'If speed doubles, kinetic energy becomes?',o:['2 times','4 times','Half','Same'],c:1},
+   {q:'Rocket propulsion demonstrates which law?',o:['Newton I','Newton II','Newton III','Ohm’s law'],c:2}
+  ];
+  return [
+   {q:'If hydrogen ion concentration is 10⁻⁵ mol/L, pH is?',o:['3','5','7','9'],c:1},
+   {q:'For a first-order reaction, half-life is:',o:['Dependent on initial concentration','Independent of initial concentration','Always zero','Proportional to concentration squared'],c:1},
+   {q:'For an exothermic equilibrium, which change favours products?',o:['Increase temperature','Decrease temperature','Add catalyst only','Remove reactants'],c:1}
+  ];
+ }
+ if(a===0)return [
+  {q:'Circle, square, circle, square, what comes next?',o:['Triangle','Circle','Star','Oval'],c:1},
+  {q:'Which one is different?',o:['Apple','Banana','Carrot','Mango'],c:2},
+  {q:'Face north and turn right. Which direction?',o:['West','South','East','North'],c:2}
+ ];
+ if(a===1)return [
+  {q:'Find the next number: 3, 6, 12, 24, ...',o:['30','36','48','42'],c:2},
+  {q:'All roses are flowers. Which statement must be true?',o:['All roses are flowers','All flowers are roses','No roses are flowers','All roses fade'],c:0},
+  {q:'If each letter moves one step forward, CAT becomes DBU. DOG becomes?',o:['EPH','EOG','DPH','FQI'],c:0}
+ ];
+ if(a===2)return [
+  {q:'Find the next term: 2, 6, 12, 20, 30, ...',o:['36','40','42','44'],c:2},
+  {q:'A is taller than B; B is taller than C. What follows?',o:['C taller than A','A taller than C','A equals C','Cannot compare'],c:1},
+  {q:'At 3:15, what is the smaller angle between clock hands?',o:['0°','7.5°','15°','22.5°'],c:1}
+ ];
+ return [
+  {q:'Mean of 5 values is 12. Four values sum to 43. Fifth value?',o:['15','17','19','21'],c:1},
+  {q:'If P implies Q, and Q is false, what follows?',o:['P is true','P is false','Q is true','No conclusion'],c:1},
+  {q:'A finishes a task in 6 hours, B in 3 hours. Together?',o:['1 hour','2 hours','3 hours','4.5 hours'],c:1}
+ ];
+}
+function startLevel(l){
+ dailyMode=false;level=l;qIndex=0;score=0;questions=buildQuestions();
+ only('game');$('gameTitle').textContent='Level '+level;
+ $('gameMeta').textContent=age+' • '+subject+' • '+difficulty(level);
+ renderQuestion();
+}
+function difficulty(l){return l<=5?'Beginner':l<=10?'Intermediate':l<=15?'Advanced':'Expert'}
+function renderQuestion(){
+ let q=questions[qIndex];
+ $('questionText').textContent=q.q;
+ $('feedback').textContent='';
+ $('nextBtn').classList.add('hidden');
+ $('questionProgress').style.width=(qIndex/questions.length*100)+'%';
+ $('answers').innerHTML='';
+ q.o.forEach((v,i)=>{
+  let b=document.createElement('button');b.className='answer';b.textContent=v;
+  b.onclick=()=>answer(i,b);$('answers').appendChild(b);
+ });
+}
+function answer(i,btn){
+ let q=questions[qIndex];
+ document.querySelectorAll('.answer').forEach((b,j)=>{b.disabled=true;if(j===q.c)b.classList.add('correct')});
+ if(i===q.c){score++;$('feedback').textContent='Lovely work! That’s correct! ✨';chime()}
+ else{$('feedback').textContent='Good try! The correct answer is '+q.o[q.c]+'. Keep learning!';btn.classList.add('wrong');tone(220,.15)}
+ $('nextBtn').classList.remove('hidden');
+ $('nextBtn').textContent=qIndex===questions.length-1?'Finish Level ✨':'Next Question →';
+}
+function nextQuestion(){if(qIndex<questions.length-1){qIndex++;renderQuestion()}else finishLevel()}
+function finishLevel(){
+ let earned=score*10+20;data.points+=earned;
+ if(dailyMode){data.dailyDone=new Date().toLocaleDateString('en-CA');data.points+=15;earned+=15}
+ else{
+  let arr=data.completed[key()]||[];
+  if(!arr.includes(level)){arr.push(level);arr.sort((a,b)=>a-b);data.completed[key()]=arr}
+ }
+ save();confetti();
+ $('celebrationIcon').textContent=score===questions.length?'🏆':'🌟';
+ $('celebrationTitle').textContent=score===questions.length?'Perfect! You Sparkled!':'Wonderful Effort!';
+ $('celebrationText').textContent=dailyMode?'Daily Challenge complete! You earned '+earned+' points.':'Level '+level+' complete! You earned '+earned+' points. '+(level<20?'Level '+(level+1)+' is now unlocked!':'All 20 levels completed!');
+ $('ratingArea').classList.toggle('hidden',dailyMode);
+ $('ratingThanks').textContent='Choose stars or skip.';
+ currentRating=0;document.querySelectorAll('.starbtn').forEach(b=>b.classList.remove('selected'));
+ speak(['Wonderful work!','You did a lovely job!','Congratulations!'][Math.floor(Math.random()*3)]);
+ $('celebration').classList.remove('hidden');
+}
+function rate(n){
+ currentRating=n;
+ document.querySelectorAll('.starbtn').forEach((b,i)=>b.classList.toggle('selected',i<n));
+ let entry={age,subject,level,rating:n,date:new Date().toLocaleDateString('en-CA')};
+ data.ratings=data.ratings||[];
+ let ix=data.ratings.findIndex(x=>x.age===age&&x.subject===subject&&x.level===level);
+ if(ix>=0)data.ratings[ix]=entry;else data.ratings.push(entry);
+ save();$('ratingThanks').textContent='Thank you for your '+n+' star rating!';
+}
+function skipRating(){$('ratingArea').classList.add('hidden');closeCelebration()}
+function closeCelebration(){
+ $('celebration').classList.add('hidden');
+ if(dailyMode){dailyMode=false;home()}else showLevels();
+}
+function startDaily(){
+ if(data.dailyDone===new Date().toLocaleDateString('en-CA'))return;
+ dailyMode=true;age='13–17';subject='Logical Reasoning';level=1;qIndex=0;score=0;
+ questions=[
+  {q:'A number rises by 25% and then falls by 20%. Net change?',o:['No change','5% rise','5% fall','10% rise'],c:0},
+  {q:'All Zorbs are Mips. No Mips are Lats. Can a Zorb be a Lat?',o:['Yes','No','Sometimes','Unknown'],c:1},
+  {q:'A train travels 90 km in 1.5 hours. Average speed?',o:['45 km/h','50 km/h','60 km/h','75 km/h'],c:2}
+ ];
+ only('game');$('gameTitle').textContent='Daily Challenge';$('gameMeta').textContent='Special Mission • Bonus points';renderQuestion();
+}
+function showLevels(){only('levels');$('levelTitle').textContent=subject+' • '+age;renderLevels()}
+function confetti(){
+ for(let i=0;i<55;i++){
+  let e=document.createElement('i');e.className='confetti';e.style.left=Math.random()*100+'vw';
+  e.style.background=['#ffe38a','#ff9ed2','#8df3d0','#b6a2ff'][i%4];
+  e.style.animationDelay=Math.random()*.7+'s';document.body.appendChild(e);
+  setTimeout(()=>e.remove(),4000);
+ }
+}
+function ensureAudio(){
+ if(!audioCtx){audioCtx=new(window.AudioContext||window.webkitAudioContext)();masterGain=audioCtx.createGain();masterGain.gain.value=Number($('volume').value)/100;masterGain.connect(audioCtx.destination)}
+ if(audioCtx.state==='suspended')audioCtx.resume();
+}
+function tone(freq=660,dur=.2){
+ try{ensureAudio();let o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type='sine';o.frequency.value=freq;
+ g.gain.setValueAtTime(.0001,audioCtx.currentTime);g.gain.exponentialRampToValueAtTime(.12*Number($('volume').value)/100,audioCtx.currentTime+.025);
+ g.gain.exponentialRampToValueAtTime(.0001,audioCtx.currentTime+dur);o.connect(g);g.connect(masterGain);o.start();o.stop(audioCtx.currentTime+dur+.03)}catch(e){}
+}
+function chime(){tone(784,.13);setTimeout(()=>tone(988,.18),110)}
+function speak(t){
+ try{if(!('speechSynthesis'in window))return;speechSynthesis.cancel();let u=new SpeechSynthesisUtterance(t);u.rate=.92;u.pitch=1.18;u.volume=Number($('volume').value)/100;speechSynthesis.speak(u)}catch(e){}
+}
+function musicNote(freq,dur){
+ if(!audioCtx||!masterGain)return;
+ let o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type='sine';o.frequency.value=freq;
+ g.gain.setValueAtTime(.0001,audioCtx.currentTime);g.gain.linearRampToValueAtTime(.055*Number($('volume').value)/100,audioCtx.currentTime+.08);
+ g.gain.setTargetAtTime(.0001,audioCtx.currentTime+dur*.65,.12);o.connect(g);g.connect(masterGain);o.start();o.stop(audioCtx.currentTime+dur);
+}
+const melody=[523,659,784,659,587,698,880,698,523,659,784,1047,880,784,659,587];
+function toggleMusic(){
+ ensureAudio();musicOn=!musicOn;$('musicBtn').textContent=musicOn?'♫ Music: On':'♫ Music: Off';
+ if(musicOn){let i=0;musicNote(262,1);musicTimer=setInterval(()=>{if(!musicOn)return;musicNote(melody[i%melody.length],.62);if(i%4===0)musicNote(melody[(i+4)%melody.length]/2,1.1);i++},520)}
+ else clearInterval(musicTimer);
+}
+$('musicBtn').addEventListener('click',toggleMusic);
+$('volume').addEventListener('input',()=>{if(masterGain)masterGain.gain.value=Number($('volume').value)/100});
+function makeSky(){
+ for(let i=0;i<75;i++){let s=document.createElement('i');s.className='star';s.style.left=Math.random()*100+'%';s.style.top=Math.random()*100+'%';s.style.animationDelay=Math.random()*3+'s';$('sky').appendChild(s)}
+ for(let i=0;i<4;i++){let c=document.createElement('i');c.className='cloud';c.style.top=(12+i*21)+'%';c.style.animationDelay=(-i*7)+'s';$('sky').appendChild(c)}
+}
+makeSky();updateDaily();updateStats();only('home');
+</script>
+</body>
+</html>
